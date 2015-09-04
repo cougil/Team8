@@ -1,17 +1,19 @@
-language: bash
+language: java
+jdk:
+- oraclejdk8
 before_install:
 - openssl aes-256-cbc -K $encrypted_fdccaf8c900e_key -iv $encrypted_fdccaf8c900e_iv
   -in cert.pem.enc -out cert.pem -d
-script:
-- sudo apt-get update
-- sudo apt-get install dnsutils --assume-yes
-- export packer_host=$(nslookup packer.hackathon.schibsted.io | grep -A10 answer |
-  grep Address | cut -d ' ' -f2 | head -1)
-- echo $packer_host
 - chmod 600 cert.pem
+- export packer_host=$(curl -X GET "http://ec2-52-17-22-205.eu-west-1.compute.amazonaws.com:5000/")
+- echo $packer_host
+after_success:
+- ./gradlew copyTar
+- mkdir -p ./aws/files/top-quotes-microservice-java/opt
+- cp ./target/top-quotes-microservice-java.tar ./aws/files/top-quotes-microservice-java/opt
 - rsync -a -arvce "ssh -i cert.pem -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-  . packer@$packer_host:/tmp/${TRAVIS_BUILD_ID}
+  ./aws/ packer@$packer_host:/tmp/${TRAVIS_BUILD_ID}
+- rsync -a -arvce "ssh -i cert.pem -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+  .git packer@$packer_host:/tmp/${TRAVIS_BUILD_ID}
 - ssh -t -t -i cert.pem -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
   packer@$packer_host "${TRAVIS_BUILD_ID}"
-after_success:
-- echo "ok"

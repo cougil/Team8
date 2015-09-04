@@ -1,0 +1,74 @@
+{
+	"variables": {
+		"aws_access_key": "",
+		"aws_secret_key": "",
+		"ec2_region": "eu-west-1",
+		"ec2_instance_type": "t2.micro",
+		"ec2_source_ami": "ami-a10897d6",
+		"ec2_ssh_username": "ec2-user",
+		"ec2_ssh_timeout": "7m",
+		"basename": "team8",
+		"creation_time": "{{env `creation_time`}}",
+		"appversion": "{{env `appversion`}}",
+		"version" : "{{env `version`}}",
+        "creator": "{{env `creator`}}"
+	},
+	"builders": [
+		{
+			"type": "amazon-ebs",
+			"access_key": "{{user `aws_access_key`}}",
+			"secret_key": "{{user `aws_secret_key`}}",
+			"region": "{{user `ec2_region`}}",
+			"source_ami": "{{user `ec2_source_ami`}}",
+			"instance_type": "{{user `ec2_instance_type`}}",
+			"ssh_username": "{{user `ec2_ssh_username`}}",
+			"ssh_timeout": "{{user `ec2_ssh_timeout`}}",
+		  	"ami_name": "{{user `basename`}}-{{ isotime \"20060102150405\"}} (builder)",
+		  	"name": "{{user `basename`}}-{{ isotime \"20060102150405\"}} (builder)",
+			"ami_virtualization_type": "hvm",
+			"tags": {
+				"Name": "{{user `basename`}}-{{ isotime \"20060102150405\"}} (builder)",
+				"appversion": "{{user `appversion`}}",
+				"base_ami_version": "{{user `ec2_source_ami`}}",
+				"creation_time":  "{{user `creation_time`}}",
+				"creator": "{{user `creator`}}"
+			}
+		}
+	],
+	"provisioners": [
+		{
+			"type": "file",
+			"source": "files/common",
+			"destination": "/tmp/files"
+		},
+		{
+				"inline":[
+					"sudo cp -R /tmp/files/* /; sudo rm -rf /tmp/files"
+				],
+				"type":"shell"
+		},
+		{
+			"type": "file",
+			"source": "files/top-quotes-microservice-java",
+			"destination": "/tmp/top-quotes-microservice-java"
+		},
+		{
+				"inline":[
+					"sudo cp -R /tmp/top-quotes-microservice-java/* /; sudo rm -rf /tmp/top-quotes-microservice-java"
+				],
+				"type":"shell"
+		},
+		{
+				"type": "shell",
+				"script": "base-ms.sh"
+		},
+		{
+			"type": "shell",
+			"script": "top-quotes-microservice-java.sh",
+			"environment_vars" : [
+			  "release={{user `version`}}"
+			]
+
+		}
+	]
+}
