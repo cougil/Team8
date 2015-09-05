@@ -83,6 +83,11 @@ public class GarfieldController {
                 .doOnCompleted(() -> response.close(true));
     }
 
+    @Path(value = "/api/garfield", method = HttpMethod.GET)
+    public Observable<Void> getQuote(HttpServerResponse<ByteBuf> response) {
+        return getQuote(response, getDefaultDate());
+    }
+
     @Path(value = "/api/garfield/{date}", method = HttpMethod.GET)
     public Observable<Void> getQuote(HttpServerResponse<ByteBuf> response, @PathParam("date") String date) {
         LOGGER.debug("Dilber 'date' received: {}", date);
