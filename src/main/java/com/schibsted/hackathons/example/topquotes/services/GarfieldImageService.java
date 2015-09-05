@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 public class GarfieldImageService {
 
     final String dateTimeFormatPattern = "yyyy-MM-dd";
-    private static final String urlGarfield = "https://garfield.com/comic/";
+    private static final String urlGarfield = "https://garfield.com/uploads/strips/%s.jpg";
 
     private String getImageUrl(String url) {
         String result = null;
@@ -30,27 +30,15 @@ public class GarfieldImageService {
 
     private String createUrl(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateTimeFormatPattern);
-        return  urlGarfield + date.format(formatter);
+        return String.format(urlGarfield, date.format(formatter));
     }
 
     public String getStripUrl(LocalDate date) {
         String result = null;
-        String url = this.createUrl(date);
-        result = this.getImageUrl(url);
+        result = this.createUrl(date);
         if(result == null) {
             throw new GarfieldException();
         }
         return result;
-    }
-
-    public static void main(String[] args) {
-
-        GarfieldImageService gis = new GarfieldImageService();
-
-        LocalDate ld = LocalDate.now();
-
-        String img = gis.getStripUrl(ld);
-
-        System.out.println(img);
     }
 }
