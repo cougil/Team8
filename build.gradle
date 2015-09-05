@@ -38,6 +38,7 @@ dependencies {
     compile 'com.netflix.ribbon:ribbon:2.1.0'
     compile 'com.netflix.ribbon:ribbon-eureka:2.1.0'
     compile 'com.netflix.blitz4j:blitz4j:1.36.0'
+    compile 'org.jsoup:jsoup:1.7.2'
 
     compile 'org.slf4j:slf4j-api:1.7.0'
     runtime 'org.slf4j:slf4j-simple:1.7.0'
